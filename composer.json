@@ -1,0 +1,22 @@
+{
+    "name": "xuchen/api-converter",
+    "description": "api converter",
+    "type": "php",
+    "license": "Apache",
+    "authors": [
+        {
+            "name": "zhouxuchen",
+            "email": "zhouxuchen1993@foxmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "ext-mbstring": "*"
+    },
+    "autoload": {
+        "psr-4": {
+          "Xuchen\\ApiConverter\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+}
