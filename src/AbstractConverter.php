@@ -58,4 +58,51 @@ abstract class AbstractConverter
     {
         return $this->current_template;
     }
+
+    /**
+     * 获取一行数据中的值
+     * @param $row
+     * @param $key
+     * @param null $default
+     * @param string $convert_method
+     * @return null
+     */
+    public function getItem($row, $key, $default = null, $convert_method = '')
+    {
+        if (isset($row[$key])) {
+            return $row[$key];
+        } else {
+            $result = $default;
+        }
+
+        if (in_array($convert_method, ['intval', 'strval', 'floatval'])) {
+            $result = $convert_method($result);
+        }
+        return $result;
+    }
+
+    /**
+     * 递归方式获取一行数据中的值
+     * @param $row
+     * @param $key
+     * @param null $default
+     * @param string $convert_method
+     * @return null
+     */
+    public function getItemRecursively($row, $key, $default = null, $convert_method = '')
+    {
+        $key_arr = explode('.', $key);
+        if (count($key_arr) > 1) {
+            $parent_key = $key_arr[0];
+            if (isset($row[$parent_key])) {
+                unset($key_arr[0]);
+                $child_key = implode('.', $key_arr);
+                return $this->getItemRecursively($row[$parent_key], $child_key, $default, $convert_method);
+            } else {
+                return $default;
+            }
+        } else {
+            return $this->getItem($row, $key, $default, $convert_method);
+        }
+    }
 }
