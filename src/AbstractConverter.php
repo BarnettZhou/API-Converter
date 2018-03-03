@@ -10,54 +10,97 @@ namespace Xuchen\ApiConverter;
 abstract class AbstractConverter
 {
     /**
-     * @var array 模板类的实例化
+     * 使用到的模板字段
+     * @var array
      */
-    protected $templates = [];
+    protected $_fields = [];
 
     /**
-     * @var string 当前使用的模板类
+     * 模板模式
+     * @var int
      */
-    protected $current_template = '';
+    protected $_template_mode = self::TPL_MODE_WITH_FIELDS;
+
+    /**
+     * 使用所有的模板字段
+     */
+    const TPL_MODE_ALL = 0;
+
+    /**
+     * 使用指定的模板字段
+     */
+    const TPL_MODE_WITH_FIELDS = 1;
+
+    /**
+     * 使用指定的字段之外的模板字段
+     */
+    const TPL_MODE_WITHOUT_FIELDS = 2;
+
+    /**
+     * 设置模板的模式
+     * @param int $mode
+     * @return $this
+     * @throws \ErrorException
+     */
+    public function setTemplateMode($mode = self::TPL_MODE_WITH_FIELDS)
+    {
+        if (!in_array($mode, [0, 1, 2])) {
+            throw new \ErrorException('Wrong Template Mode.', 500);
+        }
+
+        $this->_template_mode = $mode;
+        return $this;
+    }
+
+    /**
+     * 设置Fields
+     * @param array $fields
+     * @return $this
+     */
+    public function setFields($fields = [])
+    {
+        if ($this->_template_mode == self::TPL_MODE_ALL) {
+            $this->_fields = array_keys($this->template());
+        } else if ($this->_template_mode == self::TPL_MODE_WITHOUT_FIELDS) {
+            $this->_fields = array_diff(array_keys($this->template()), $fields);
+        } else {
+            $this->_fields = $fields;
+        }
+        return $this;
+    }
+
+    /**
+     * 获取模板Fields
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->_fields;
+    }
+
+    /**
+     * 转化接口数据前的回调方法
+     * @return mixed
+     */
+    abstract protected function beforeConvert();
+
+    /**
+     * 转化数据后的回调方法
+     * @return mixed
+     */
+    abstract protected function afterConverter();
+
+    /**
+     * 模板
+     * @return mixed
+     */
+    abstract protected function template();
 
     /**
      * 转化接口数据
      * @return mixed
      */
     abstract public function convert();
-
-    /**
-     * 使用模板
-     * @param $template
-     * @return $this
-     * @throws \ErrorException
-     */
-    public function useTemplate($template)
-    {
-        if (!class_exists($template)) {
-            throw new \ErrorException('Template Class ' . $template . ' Not Found.');
-        }
-
-        $this->current_template = $template;
-        if (isset($this->templates[$template])) {
-            return $this;
-        }
-
-        $this->templates[$template] = new $template;
-        if (!is_subclass_of($this->templates[$template], 'Xuchen\AbstractTemplate')) {
-            throw new \ErrorException('Wrong Template Class ' . $template . '.');
-        }
-
-        return $this;
-    }
-
-    /**
-     * 获取当前正在使用的模板
-     * @return string
-     */
-    public function getCurrentTemplate()
-    {
-        return $this->current_template;
-    }
 
     /**
      * 获取一行数据中的值
