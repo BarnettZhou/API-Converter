@@ -2,7 +2,7 @@
     "name": "xuchen/api-converter",
     "description": "api converter",
     "type": "php",
-    "license": "Apache",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "zhouxuchen",
